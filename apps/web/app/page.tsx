@@ -15,8 +15,9 @@ import { toast } from "sonner";
 
 export default function Page() {
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [mounted, setMounted] = useState(false);
+
+  const content = window.localStorage.getItem("markdown");
+  console.log("content", content);
 
   const saveToStrapi = async () => {
     try {
