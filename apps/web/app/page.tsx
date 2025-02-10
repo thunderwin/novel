@@ -15,9 +15,16 @@ import { toast } from "sonner";
 
 export default function Page() {
   const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-  const content = window.localStorage.getItem("markdown");
-  console.log("content", content);
+  // 使用 useEffect 来安全地访问 localStorage
+  useEffect(() => {
+    // 只在客户端执行
+    const savedContent = window.localStorage.getItem("markdown");
+    if (savedContent) {
+      setContent(savedContent);
+    }
+  }, []);
 
   const saveToStrapi = async () => {
     try {
@@ -27,8 +34,8 @@ export default function Page() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: title,
-          content: content,
+          title,
+          content,
         }),
       });
 
@@ -62,7 +69,7 @@ export default function Page() {
           className="px-4 py-2 border rounded-md"
         />
       </div>
-      <TailwindAdvancedEditor />
+      <TailwindAdvancedEditor initialContent={content} />
     </div>
   );
 }
