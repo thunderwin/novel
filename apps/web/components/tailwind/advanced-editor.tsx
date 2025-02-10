@@ -14,7 +14,7 @@ import {
   handleImageDrop,
   handleImagePaste,
 } from "novel";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { defaultExtensions } from "./extensions";
 import { ColorSelector } from "./selectors/color-selector";
@@ -32,15 +32,10 @@ const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
-interface TailwindAdvancedEditorProps {
-  initialContent?: string;
-}
-
-const TailwindAdvancedEditor: FC<TailwindAdvancedEditorProps> = ({
-  initialContent,
-}) => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [content, setContent] = useState(initialContent || "");
+const TailwindAdvancedEditor = () => {
+  const [initialContent, setInitialContent] = useState<null | JSONContent>(
+    null,
+  );
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [charsCount, setCharsCount] = useState();
 
@@ -81,13 +76,12 @@ const TailwindAdvancedEditor: FC<TailwindAdvancedEditorProps> = ({
   );
 
   useEffect(() => {
-    setIsMounted(true);
     const content = window.localStorage.getItem("novel-content");
-    if (content) setContent(JSON.parse(content));
-    else setContent(defaultEditorContent);
+    if (content) setInitialContent(JSON.parse(content));
+    else setInitialContent(defaultEditorContent);
   }, []);
 
-  if (!isMounted) return null;
+  if (!initialContent) return null;
 
   return (
     <div className="relative w-full max-w-screen-lg">
@@ -107,7 +101,7 @@ const TailwindAdvancedEditor: FC<TailwindAdvancedEditorProps> = ({
       </div>
       <EditorRoot>
         <EditorContent
-          initialContent={content}
+          initialContent={initialContent}
           extensions={extensions}
           className="relative min-h-[500px] w-full max-w-screen-lg border-muted bg-background sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:shadow-lg"
           editorProps={{
