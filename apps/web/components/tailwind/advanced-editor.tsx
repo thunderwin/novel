@@ -37,7 +37,7 @@ const TailwindAdvancedEditor = () => {
     null,
   );
   const [saveStatus, setSaveStatus] = useState("Saved");
-  const [charsCount, setCharsCount] = useState();
+  const [charsCount, setCharsCount] = useState<number>(0);
 
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -58,8 +58,13 @@ const TailwindAdvancedEditor = () => {
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       const json = editor.getJSON();
-      // console.log("json", json);
-      setCharsCount(editor.storage.characterCount.words());
+
+      // 更新字数统计逻辑
+      const text = editor.getText();
+      // 使用正则表达式匹配中文字符和英文单词
+      const wordCount = text.match(/[\u4e00-\u9fa5]|[a-zA-Z]+/g)?.length || 0;
+      setCharsCount(wordCount);
+
       window.localStorage.setItem(
         "html-content",
         highlightCodeblocks(editor.getHTML()),
