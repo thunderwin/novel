@@ -2,6 +2,8 @@
   "extends": "tsconfig/next.json",
 
   "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true,
     "plugins": [
       {
         "name": "next"
