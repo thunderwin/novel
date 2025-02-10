@@ -68,7 +68,7 @@ const TailwindAdvancedEditor = () => {
       window.localStorage.setItem("novel-content", JSON.stringify(json));
 
       const markdown = editor.storage.markdown.getMarkdown();
-      console.log("markdown", markdown);
+      // console.log("markdown", markdown);
       window.localStorage.setItem("markdown", markdown);
       setSaveStatus("Saved");
     },
