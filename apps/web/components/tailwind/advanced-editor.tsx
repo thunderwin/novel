@@ -1,5 +1,6 @@
 "use client";
 import { defaultEditorContent } from "@/lib/content";
+
 import {
   EditorCommand,
   EditorCommandEmpty,
@@ -14,7 +15,7 @@ import {
   handleImageDrop,
   handleImagePaste,
 } from "novel";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { defaultExtensions } from "./extensions";
 import { ColorSelector } from "./selectors/color-selector";
@@ -32,7 +33,11 @@ const hljs = require("highlight.js");
 
 const extensions = [...defaultExtensions, slashCommand];
 
-const TailwindAdvancedEditor = () => {
+export interface EditorRef {
+  clear: () => void;
+}
+
+const TailwindAdvancedEditor = forwardRef<EditorRef>((props, ref) => {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null,
   );
@@ -43,6 +48,8 @@ const TailwindAdvancedEditor = () => {
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAI, setOpenAI] = useState(false);
+
+  const [editor, setEditor] = useState<EditorInstance | null>(null);
 
   //Apply Codeblock Highlighting on the HTML from editor.getHTML()
   const highlightCodeblocks = (content: string) => {
@@ -81,12 +88,22 @@ const TailwindAdvancedEditor = () => {
   );
 
   useEffect(() => {
-    const content = window.localStorage.getItem("novel-content");
-    if (content) setInitialContent(JSON.parse(content));
-    else setInitialContent(defaultEditorContent);
-  }, []);
+    const markdown = window.localStorage.getItem("markdown");
+    if (markdown && editor) {
+      editor.commands.setContent(markdown, false, {});
+    }
+  }, [editor]);
 
-  if (!initialContent) return null;
+  useImperativeHandle(ref, () => ({
+    clear: () => {
+      if (editor) {
+        editor.commands.clearContent();
+        window.localStorage.removeItem("novel-content");
+        window.localStorage.removeItem("html-content");
+        window.localStorage.removeItem("markdown");
+      }
+    },
+  }));
 
   return (
     <div className="relative w-full max-w-screen-lg">
@@ -126,7 +143,9 @@ const TailwindAdvancedEditor = () => {
             debouncedUpdates(editor);
             setSaveStatus("Unsaved");
           }}
+          onCreate={({ editor }) => setEditor(editor)}
           slotAfter={<ImageResizer />}
+          immediatelyRender={false} // 添加这行
         >
           <EditorCommand className="z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border border-muted bg-background px-1 py-2 shadow-md transition-all">
             <EditorCommandEmpty className="px-2 text-muted-foreground">
@@ -171,6 +190,6 @@ const TailwindAdvancedEditor = () => {
       </EditorRoot>
     </div>
   );
-};
+});
 
 export default TailwindAdvancedEditor;
