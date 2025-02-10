@@ -28,6 +28,9 @@ export default function Page() {
 
   const saveToStrapi = async () => {
     try {
+      // 在提交前从 localStorage 获取最新内容
+      const currentContent = localStorage.getItem("markdown") || "";
+
       const response = await fetch("/api/novels", {
         method: "POST",
         headers: {
@@ -35,7 +38,7 @@ export default function Page() {
         },
         body: JSON.stringify({
           title,
-          content,
+          content: currentContent, // 使用从 localStorage 获取的内容
         }),
       });
 
