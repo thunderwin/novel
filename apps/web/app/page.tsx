@@ -81,7 +81,7 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        throw new Error("生成SEO标题失败");
+        throw new Error("生成SEO标题失败!");
       }
 
       const data = await response.json();
