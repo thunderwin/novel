@@ -14,11 +14,29 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useRef } from "react";
 import { type EditorRef } from "@/components/tailwind/advanced-editor";
+
 export default function Page() {
   const [title, setTitle] = useState("");
-  const [seoTitle, setSeoTitle] = useState("");
   const [url, setUrl] = useState("");
   const editorRef = useRef<EditorRef>(null);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (title) {
+        handleGenerateSeoTitle();
+        setUrl(generateUrlFromTitle(title));
+      }
+    }, 2000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [title]);
+
+  const generateUrlFromTitle = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  };
 
   const saveToStrapi = async () => {
     try {
@@ -51,8 +69,33 @@ export default function Page() {
   const handleClear = () => {
     editorRef.current?.clear();
     setTitle("");
-    setSeoTitle("");
     setUrl("");
+  };
+
+  const handleGenerateSeoTitle = async () => {
+    try {
+      const response = await fetch("/api/deepseek", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+      });
+
+      if (!response.ok) {
+        throw new Error("生成SEO标题失败!");
+      }
+
+      const data = await response.json();
+
+      const english_title = data.choices[0].message.content;
+
+      setUrl(generateUrlFromTitle(english_title));
+      return;
+    } catch (error) {
+      console.error("生成SEO标题失败:", error);
+      toast.error("生成SEO标题失败，请重试");
+    }
   };
 
   return (
@@ -83,16 +126,6 @@ export default function Page() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className=" text-xl px-4 py-2 border w-full rounded-md"
-          />
-        </div>
-
-        <div className="seo_title">
-          <input
-            type="text"
-            placeholder="SEO Title"
-            value={seoTitle}
-            onChange={(e) => setSeoTitle(e.target.value)}
-            className="px-4 text-xl py-2 border w-full rounded-md"
           />
         </div>
 

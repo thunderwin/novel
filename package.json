@@ -7,6 +7,7 @@
     "version:packages": "turbo build && changeset version",
     "build": "turbo build",
     "dev": "turbo dev",
+    "d": "turbo dev",
     "format": "turbo format --continue --",
     "format:fix": "turbo format --continue -- --write",
     "lint": "turbo lint --continue --",
