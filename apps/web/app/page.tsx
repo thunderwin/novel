@@ -50,6 +50,7 @@ export default function Page() {
         },
         body: JSON.stringify({
           title,
+          url,
           content: currentContent, // 使用从 localStorage 获取的内容
         }),
       });
