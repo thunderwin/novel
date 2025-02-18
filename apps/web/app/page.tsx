@@ -50,6 +50,9 @@ export default function Page() {
 
   const handleClear = () => {
     editorRef.current?.clear();
+    setTitle("");
+    setSeoTitle("");
+    setUrl("");
   };
 
   return (
